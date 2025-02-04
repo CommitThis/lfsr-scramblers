@@ -110,6 +110,10 @@ in the input, XORing them together, producing a set of mask that look like this:
 | Taps for bit $6$ |               $0$ | $\color{cyan}{1}$ |               $0$ |               $0$ |               $0$ |               $0$ | $\color{cyan}{1}$ | $\color{cyan}{1}$ |               $0$ |               $0$ |               $0$ | $\color{lightgreen}{1}$ |               $0$ | $\color{lightgreen}{1}$ |
 | Taps for bit $7$ | $\color{cyan}{1}$ |               $0$ |               $0$ |               $0$ |               $0$ | $\color{cyan}{1}$ | $\color{cyan}{1}$ |               $0$ |               $0$ |               $0$ | $\color{lightgreen}{1}$ |               $0$ | $\color{lightgreen}{1}$ |                 0 |
 
+Note that the zeroes occur in the updated matrix when a dependee occurs
+$mod2$. If a bit is XORed twice (or by some factor of 2) , it is cancelled out
+and doesn't contribute to the final result.
+
 ## Performance
 
 Performance was benchmarked using instantiations for the following polynomial:
