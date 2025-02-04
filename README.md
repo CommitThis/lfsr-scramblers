@@ -28,8 +28,8 @@ There are three executables included:
   * Scrambling a range of values
 * `tune_lfsr.cpp`: Contains and runs an instantiation of each LFSR type, writing
   the output to a file. This is mainly for profiling using Intel VTune or 
-  `kcachegrind` as doing so on either the benchmarks or tests produces a lot of
-  call stack noise.
+  `callgrind`/`kcachegrind` as doing so on either the benchmarks or tests produces
+  a lot of call stack noise.
 
 
 Both the bit at a time Galois and Fibonacci LFSRs are written in the usual way,
@@ -74,6 +74,15 @@ value of what would ordinarily have been a previously calculated and scrambled
 bit. The problematic taps are coloured red, and the "cascaded" dependencies are
 coloured cyan.
 
+> **Note**: Since the input is being shifted left to right (MSB to LSB) in a
+> `std::bitset`, the tap indexes are reversed and 0-indexed. Therefore the tap
+>  indexes for this polynomial become:
+> 
+> | Tap   | Index |
+> |-------|-------|
+> | $x^6$ | `0`   |
+> | $x^5$ | `1`   |
+> | $1$   | `6`   |
 
 |                  | $In_{7}$ | $In_{6}$ | $In_{5}$ | $In_{4}$ |      $In_{3}$ |          $In_{2}$ |          $In_{1}$ |          $In_{0}$ | $B_{5}$ | $B_{4}$ |           $B_{3}$ |           $B_{2}$ |           $B_{1}$ |           $B_{0}$ |
 |------------------|----------|----------|----------|----------|---------------|-------------------|-------------------|-------------------|---------|---------|-------------------|-------------------|-------------------|-------------------|
