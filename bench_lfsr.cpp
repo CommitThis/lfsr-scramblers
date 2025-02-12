@@ -1,11 +1,10 @@
 #include <lfsr.hpp>
 
 #include <test_detail.hpp>
+#include <bench_detail.hpp>
 
 #include <benchmark/benchmark.h>
 
-
-using tap_list = lfsr::tap_list<0, 4, 10, 11, 12>;
 
 
 const auto test_data = std::array<std::uint8_t, 128>{
@@ -27,92 +26,319 @@ const auto test_data = std::array<std::uint8_t, 128>{
     120, 121, 122, 123, 124, 125, 126, 127
 };
 
+
+
+
+// template <typename TapList>
+// auto LFSR_FeedthroughGalois(benchmark::State & state)
+// {
+//     using lfsr_type = detail::feedthrough_galois_from_list_t<TapList>;
+
+//     auto lfsr = lfsr_type{};
+//     for (auto _ : state) {
+//         auto x = lfsr.scramble_byte(42);
+//         benchmark::DoNotOptimize(x);
+//     }
+// }
+
+// template <typename TapList>
+// auto LFSR_FeedthroughFibonacci(benchmark::State & state)
+// {
+//     using lfsr_type = detail::feedthrough_fibonacci_from_list_t<TapList>;
+
+//     auto lfsr = lfsr_type{};
+//     for (auto _ : state) {
+//         auto x = lfsr.scramble_byte(42);
+//         benchmark::DoNotOptimize(x);
+//     }
+// }
+
+// template <typename TapList>
+// auto LFSR_FeedthroughFibonacciBulk(benchmark::State & state)
+// {
+//     using lfsr_type = detail::feedthrough_fibonacci_bulk_from_list_t<TapList>;
+
+//     auto lfsr = lfsr_type{};
+//     for (auto _ : state) {
+//         auto x = lfsr.scramble_byte(42);
+//         benchmark::DoNotOptimize(x);
+//     }
+// }
+
+auto make_all_zeroes() -> std::vector<std::uint8_t>
+{
+    auto result = std::vector<std::uint8_t>{};
+    for (auto ii = 0; ii != 128; ++ii) {
+        result.push_back(0);
+    }
+    return result;
+}
+
+auto all_zeroes() -> std::vector<std::uint8_t> const &
+{
+    static auto result = make_all_zeroes();
+    return result;
+}
+
+template <typename TapList>
 auto LFSR_FeedthroughGalois(benchmark::State & state)
 {
-    using lfsr_type = detail::feedthrough_galois_from_list_t<tap_list>;
+    using lfsr_type = detail::feedthrough_galois_from_list_t<TapList>;
 
+    auto result = std::vector<std::uint8_t>();
     auto lfsr = lfsr_type{};
     for (auto _ : state) {
-        auto x = lfsr.scramble_byte(42);
-        benchmark::DoNotOptimize(x);
+        state.PauseTiming();
+        result.clear();
+        result.reserve(test_data.size());
+        state.ResumeTiming();
+        lfsr.scramble_range(std::begin(test_data), 
+                std::end(test_data), 
+                std::back_inserter(result));
+        benchmark::DoNotOptimize(result);
+    }
+    if (result.size() != 128) {
+        throw std::runtime_error("result.size() != 128");
+    }
+    if (result == all_zeroes()) {
+        throw std::runtime_error("result == all_zeroes()");
     }
 }
 
+
+template <typename TapList>
 auto LFSR_FeedthroughFibonacci(benchmark::State & state)
 {
-    using lfsr_type = detail::feedthrough_fibonacci_from_list_t<tap_list>;
+    using lfsr_type = detail::feedthrough_fibonacci_from_list_t<TapList>;
 
+    auto result = std::vector<std::uint8_t>();
     auto lfsr = lfsr_type{};
     for (auto _ : state) {
-        auto x = lfsr.scramble_byte(42);
-        benchmark::DoNotOptimize(x);
+        state.PauseTiming();
+        result.clear();
+        result.reserve(test_data.size());
+        state.ResumeTiming();
+        lfsr.scramble_range(std::begin(test_data), 
+                std::end(test_data), 
+                std::back_inserter(result));
+        benchmark::DoNotOptimize(result);
+    }
+    if (result.size() != 128) {
+        throw std::runtime_error("result.size() != 128");
+    }
+    if (result == all_zeroes()) {
+        throw std::runtime_error("result == all_zeroes()");
     }
 }
 
+
+template <typename TapList>
 auto LFSR_FeedthroughFibonacciBulk(benchmark::State & state)
 {
-    using lfsr_type = detail::feedthrough_fibonacci_bulk_from_list_t<tap_list>;
-
-    auto lfsr = lfsr_type{};
-    for (auto _ : state) {
-        auto x = lfsr.scramble_byte(42);
-        benchmark::DoNotOptimize(x);
-    }
-}
-
-
-auto LFSR_FeedthroughGalois_Range(benchmark::State & state)
-{
-    using lfsr_type = detail::feedthrough_galois_from_list_t<tap_list>;
+    using lfsr_type = detail::feedthrough_fibonacci_bulk_from_list_t<TapList>;
 
     auto result = std::vector<std::uint8_t>();
     auto lfsr = lfsr_type{};
     for (auto _ : state) {
+        state.PauseTiming();
+        result.clear();
+        result.reserve(test_data.size());
+        state.ResumeTiming();
         lfsr.scramble_range(std::begin(test_data), 
                 std::end(test_data), 
                 std::back_inserter(result));
         benchmark::DoNotOptimize(result);
     }
-}
-
-
-auto LFSR_FeedthroughFibonacci_Range(benchmark::State & state)
-{
-    using lfsr_type = detail::feedthrough_fibonacci_from_list_t<tap_list>;
-
-    auto result = std::vector<std::uint8_t>();
-    auto lfsr = lfsr_type{};
-    for (auto _ : state) {
-        lfsr.scramble_range(std::begin(test_data), 
-                std::end(test_data), 
-                std::back_inserter(result));
-        benchmark::DoNotOptimize(result);
+    if (result.size() != 128) {
+        throw std::runtime_error("result.size() != 128");
+    }
+    if (result == all_zeroes()) {
+        throw std::runtime_error("result == all_zeroes()");
     }
 }
 
+// #define MIN_TIME ->MinTime(0.1)
+#define MIN_TIME
 
-auto LFSR_FeedthroughFibonacciBulk_Range(benchmark::State & state)
-{
-    using lfsr_type = detail::feedthrough_fibonacci_bulk_from_list_t<tap_list>;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_5)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_6)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_7)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_8)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_9)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_10)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_11)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_12)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_13)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_14)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_15)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_16)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_17)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_18)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_19)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_20)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_21)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_22)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_23)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_24)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_25)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_26)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_27)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_28)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_29)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_30)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_31)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_32)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_33)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_34)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_35)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_36)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_37)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_38)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_39)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_40)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_41)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_42)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_43)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_44)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_45)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_46)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_47)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_48)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_49)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_50)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_51)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_52)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_53)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_54)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_55)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_56)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_57)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_58)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_59)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_60)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_61)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_62)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughGalois, Degree_63)MIN_TIME;
 
-    auto result = std::vector<std::uint8_t>();
-    auto lfsr = lfsr_type{};
-    for (auto _ : state) {
-        lfsr.scramble_range(std::begin(test_data), 
-                std::end(test_data), 
-                std::back_inserter(result));
-        benchmark::DoNotOptimize(result);
-    }
-}
 
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_5)MIN_TIME;;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_6)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_7)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_8)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_9)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_10)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_11)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_12)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_13)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_14)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_15)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_16)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_17)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_18)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_19)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_20)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_21)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_22)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_23)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_24)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_25)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_26)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_27)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_28)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_29)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_30)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_31)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_32)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_33)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_34)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_35)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_36)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_37)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_38)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_39)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_40)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_41)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_42)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_43)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_44)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_45)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_46)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_47)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_48)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_49)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_50)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_51)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_52)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_53)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_54)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_55)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_56)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_57)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_58)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_59)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_60)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_61)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_62)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacci, Degree_63)MIN_TIME;
 
-
-BENCHMARK(LFSR_FeedthroughGalois);
-BENCHMARK(LFSR_FeedthroughFibonacci);
-BENCHMARK(LFSR_FeedthroughFibonacciBulk);
-
-BENCHMARK(LFSR_FeedthroughGalois_Range);
-BENCHMARK(LFSR_FeedthroughFibonacci_Range);
-BENCHMARK(LFSR_FeedthroughFibonacciBulk_Range);
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_5)MIN_TIME;;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_6)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_7)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_8)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_9)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_10)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_11)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_12)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_13)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_14)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_15)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_16)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_17)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_18)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_19)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_20)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_21)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_22)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_23)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_24)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_25)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_26)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_27)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_28)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_29)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_30)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_31)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_32)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_33)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_34)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_35)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_36)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_37)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_38)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_39)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_40)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_41)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_42)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_43)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_44)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_45)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_46)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_47)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_48)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_49)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_50)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_51)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_52)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_53)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_54)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_55)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_56)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_57)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_58)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_59)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_60)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_61)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_62)MIN_TIME;
+BENCHMARK_TEMPLATE(LFSR_FeedthroughFibonacciBulk, Degree_63)MIN_TIME;
 
 BENCHMARK_MAIN();
