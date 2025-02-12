@@ -66,6 +66,7 @@ if __name__ == '__main__':
     parser.add_argument('--input-file', type=str, help='CSV file containing benchmark results')
     parser.add_argument('--write-image', action='store_true', help='Output file for the plot')
     parser.add_argument('--platform', type=str, required=True, help='Platform name')
+    parser.add_argument('--max-y', type=float, help='Maximum value for the y-axis')
     args = parser.parse_args()
 
     results = get_results(args.input_file)
@@ -83,7 +84,12 @@ if __name__ == '__main__':
 
     min_x = min(x_f)
     max_x = max(x_f)
+
+    
     max_y = max(max(y_f), max(y_bf), max(y_g))
+
+    if args.max_y:
+        max_y = args.max_y
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=x_f,  y=y_f,  
