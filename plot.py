@@ -4,11 +4,17 @@ import platform
 import re
 import argparse
 import magic
+import platform
 
 from collections import defaultdict
 
 import plotly.graph_objects as go
 
+
+if platform.system() != 'Windows':
+    print('This script will not work on Linux, as the Kaleido package is '
+          'hopelessly broken. Please run this script on Windows.\n')
+    exit(1)
 
 script_dir = os.path.dirname(__file__)
 

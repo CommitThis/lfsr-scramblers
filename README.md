@@ -133,7 +133,7 @@ counterparts.
 
 ### Linux (WSL2 + GCC)
 
-
+![Linux 4-LFSR Results](Linux.png)
 
 ### Windows (MSVC)
 
