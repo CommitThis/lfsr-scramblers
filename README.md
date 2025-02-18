@@ -130,46 +130,11 @@ than any of the Linux implementations. The disappointment here lies in the
 bit-by-bit versions, which are considerably slower than their Linux 
 counterparts.
 
-For this polynomial, we could say (given my machine configuration), that on
-Linux we would want the Galois implementation, and on Windows the bulk 
-Fibonacci.
-
 
 ### Linux (WSL2 + GCC)
 
-```
-CPU Caches:
-  L1 Data 48 KiB (x16)
-  L1 Instruction 32 KiB (x16)
-  L2 Unified 2048 KiB (x16)
-  L3 Unified 36864 KiB (x1)
-Load Average: 0.25, 0.17, 0.11
-------------------------------------------------------------------------------
-Benchmark                                    Time             CPU   Iterations
-------------------------------------------------------------------------------
-LFSR_FeedthroughGalois                    6.32 ns         6.32 ns    109504352
-LFSR_FeedthroughFibonacci                 13.1 ns         13.1 ns     53089466
-LFSR_FeedthroughFibonacciBulk             10.4 ns         10.4 ns     66044340
-LFSR_FeedthroughGalois_Range               815 ns          815 ns       845428
-LFSR_FeedthroughFibonacci_Range           1808 ns         1808 ns       389237
-LFSR_FeedthroughFibonacciBulk_Range       1404 ns         1378 ns       506681
-```
+![Linux 4-LFSR Results](Linux.png)
 
 ### Windows (MSVC)
 
-```
-CPU Caches:
-  L1 Data 48 KiB (x16)
-  L1 Instruction 32 KiB (x16)
-  L2 Unified 2048 KiB (x16)
-  L3 Unified 36864 KiB (x1)
-------------------------------------------------------------------------------
-Benchmark                                    Time             CPU   Iterations
-------------------------------------------------------------------------------
-LFSR_FeedthroughGalois                    27.5 ns         13.8 ns     49777778
-LFSR_FeedthroughFibonacci                 24.5 ns         12.7 ns     64000000
-LFSR_FeedthroughFibonacciBulk             5.37 ns         2.25 ns    298666667
-LFSR_FeedthroughGalois_Range              3831 ns         1967 ns       373333
-LFSR_FeedthroughFibonacci_Range           3199 ns         1549 ns       494345
-LFSR_FeedthroughFibonacciBulk_Range        745 ns          296 ns      2007040
-```
+![Windows 4-LFSR Results](Windows.png)

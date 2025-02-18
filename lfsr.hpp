@@ -151,7 +151,7 @@ public:
     using buffer_type = typename traits::buffer_type;
 
     constexpr static auto degree = traits::degree;
-    constexpr static auto period = (1 << degree) - 1;
+    constexpr static auto period = (1ull << degree) - 1;
 
     feedthrough_fibonacci()
         : m_buffer{traits::all_ones()}
@@ -249,7 +249,7 @@ public:
     using buffer_type = typename traits::buffer_type;
 
     constexpr static auto degree = traits::degree;
-    constexpr static auto period = (1 << degree) - 1;
+    constexpr static auto period = (1ull << degree) - 1;
 
     feedthrough_galois()
         : m_buffer{traits::all_ones()}
@@ -360,7 +360,7 @@ public:
     using dependency_list = typename traits::dependency_list;
 
     constexpr static auto degree = traits::degree;
-    constexpr static auto period = (1 << degree) - 1;
+    constexpr static auto period = (1ull << degree) - 1;
 
     feedthrough_fibonacci_bulk()
         : m_buffer{traits::all_ones()}

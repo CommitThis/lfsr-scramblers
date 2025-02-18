@@ -1,1 +1,3 @@
 build
+*.csv
+.vscode/settings.json
