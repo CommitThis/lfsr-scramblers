@@ -133,8 +133,10 @@ counterparts.
 
 ### Linux (WSL2 + GCC)
 
-![Linux 4-LFSR Results](Linux.png)
+![Linux 4-LFSR Wall Time](images/linux.wall.png)
+![Linux 4-LFSR Bytes per Second](images/linux.bytes.png)
 
 ### Windows (MSVC)
 
-![Windows 4-LFSR Results](Windows.png)
+![Windows 4-LFSR Wall Time](images/windows.wall.png)
+![Windows 4-LFSR Bytes per Second](images/windows.bytes.png)
