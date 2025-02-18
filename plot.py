@@ -142,7 +142,7 @@ if __name__ == '__main__':
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='#222', range=[min_x, max_x], nticks=(max_x - min_x + 1))
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='#222', range=[0, max_y_wall + max_y_wall * 0.05], nticks=20)
     if args.write_image:
-        fig.write_image(os.path.join(os.getcwd(), f'{args.platform}.wall.png'))
+        fig.write_image(os.path.join(os.getcwd(), f'{args.platform.lower()}.wall.png'))
     fig.show()
 
 
@@ -187,6 +187,6 @@ if __name__ == '__main__':
     fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='#222', range=[min_x, max_x], nticks=(max_x - min_x + 1))
     fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='#222', range=[0, max_y_bps + max_y_bps * 0.05], nticks=20)
     if args.write_image:
-        fig.write_image(os.path.join(os.getcwd(), f'{args.platform}.bytes.png'))
+        fig.write_image(os.path.join(os.getcwd(), f'{args.platform.lower()}.bytes.png'))
     fig.show()
 
